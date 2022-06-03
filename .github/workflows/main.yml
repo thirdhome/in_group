@@ -8,20 +8,29 @@ on:
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }}
     strategy:
       matrix:
-        ruby:
-          - '3.1.2'
+        ruby: ['3.1.2']
 
     steps:
     - uses: actions/checkout@v3
+    - name: Set up MySQL
+      env:
+        DB_DATABASE: in_group_test
+        DB_USER: root
+        DB_PASSWORD: root
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - name: Run the default task
+      env:
+        DB: mysql2://root:root@localhost:3306/in_group_test
       run: bundle exec rake
