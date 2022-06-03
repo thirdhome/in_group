@@ -15,12 +15,10 @@ module InGroup
     if definition.nil?
       definition = Definition.new
       klass.instance_variable_set(:@_in_group_definition, definition)
-      klass.subclasses.each do |sub_klass|
-        sub_klass.instance_variable_set(:@_in_group_definition, definition)
-      end
     end
 
     block.call(definition)
+
     if !klass.is_a?(Mixin)
       klass.include(Mixin)
     end
